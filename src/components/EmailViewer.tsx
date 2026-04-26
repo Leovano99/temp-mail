@@ -99,7 +99,7 @@ export function EmailViewer({ address, emailId }: EmailViewerProps) {
       <div className="flex-1 overflow-y-auto p-8 text-[#e6edf3] leading-relaxed font-sans text-[14px]">
         {emailDetail.body_html ? (
           <div 
-            className="my-email-container bg-white text-black p-8 rounded-lg shadow-sm"
+            className="bg-white text-black p-4 md:p-8 rounded-lg shadow-sm w-full max-w-full overflow-x-auto"
             dangerouslySetInnerHTML={{ __html: sanitizedHtml }} 
           />
         ) : (

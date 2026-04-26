@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { Copy, RefreshCw, Check, PlusCircle, Edit2 } from 'lucide-react';
+import { Copy, RefreshCw, Check, PlusCircle, Edit2, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeaderProps {
@@ -8,9 +8,10 @@ interface HeaderProps {
   onNewAddress: () => void;
   onRefreshInbox: () => void;
   onCustomAddressSubmit: (address: string) => void;
+  onToggleSidebar: () => void;
 }
 
-export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, onCustomAddressSubmit }: HeaderProps) {
+export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, onCustomAddressSubmit, onToggleSidebar }: HeaderProps) {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
@@ -43,21 +44,29 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
   };
 
   return (
-    <header className="h-16 bg-[#0d1117] border-b border-[#30363d] flex items-center flex-row-reverse justify-between px-6 shrink-0 z-20">
-      <div className="flex items-center gap-4">
+    <header className="h-16 bg-[#0d1117] border-b border-[#30363d] flex items-center justify-between px-4 md:px-6 shrink-0 z-20">
+      
+      {/* Mobile left-side elements */}
+      <div className="flex items-center gap-2 lg:hidden">
+        <button onClick={onToggleSidebar} className="p-2 -ml-2 text-[#7d8590] hover:text-white hover:bg-[#21262d] rounded-md transition-colors">
+          <Menu className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2 md:gap-4 ml-auto">
         
         {isEditing ? (
-          <form onSubmit={handleSubmit} className="flex items-center gap-1.5">
+          <form onSubmit={handleSubmit} className="flex items-center gap-1.5 flex-1 md:flex-initial">
             <input 
               autoFocus
-              className="bg-[#0e1116] border border-[#30363d] text-[#e6edf3] text-sm rounded px-2 py-1.5 outline-none focus:border-[#1f6feb] w-32 transition-colors"
+              className="bg-[#0e1116] border border-[#30363d] text-[#e6edf3] text-[13px] md:text-sm rounded px-2 py-1.5 outline-none focus:border-[#1f6feb] w-24 md:w-32 transition-colors"
               value={editUsername}
               onChange={(e) => setEditUsername(e.target.value)}
               placeholder="username"
             />
-            <span className="text-[#7d8590] text-sm font-medium">@</span>
+            <span className="text-[#7d8590] text-xs md:text-sm font-medium">@</span>
             <select 
-              className="bg-[#0e1116] border border-[#30363d] text-[#e6edf3] text-sm rounded px-2 py-1.5 outline-none focus:border-[#1f6feb] transition-colors"
+              className="bg-[#0e1116] border border-[#30363d] text-[#e6edf3] text-[13px] md:text-sm rounded px-1 md:px-2 py-1.5 outline-none focus:border-[#1f6feb] transition-colors w-24 md:w-auto"
               value={selectedDomain}
               onChange={(e) => setSelectedDomain(e.target.value)}
             >
@@ -65,7 +74,7 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
                 <option key={d} value={d}>{d}</option>
               ))}
             </select>
-            <div className="flex items-center gap-1 ml-2">
+            <div className="hidden md:flex items-center gap-1 ml-2">
               <button type="submit" className="text-[11px] font-semibold bg-[#238636] hover:bg-[#2ea043] text-white px-2.5 py-1.5 rounded transition-colors shadow-sm">
                 Save
               </button>
@@ -73,21 +82,22 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
                 Cancel
               </button>
             </div>
+            <button type="submit" className="md:hidden ml-1 p-1 bg-[#238636] text-white rounded"><Check className="w-4 h-4"/></button>
           </form>
         ) : (
           <div className="flex flex-col text-right group relative cursor-pointer" onClick={() => setIsEditing(true)}>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7d8590] flex items-center justify-end gap-1">
-              Active Address
+            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-[#7d8590] flex items-center justify-end gap-1">
+              Address
               <Edit2 className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
             </span>
-            <span className="text-sm font-medium text-[#e6edf3]">{email}</span>
+            <span className="text-[13px] md:text-sm font-medium text-[#e6edf3] break-all">{email}</span>
           </div>
         )}
         
-        <div className="flex items-center gap-2 border-l border-[#30363d] pl-4">
+        <div className="flex items-center gap-1 md:gap-2 border-l border-[#30363d] pl-2 md:pl-4">
           <button 
             onClick={handleCopy}
-            className="flex items-center justify-center w-8 h-8 rounded hover:bg-[#21262d] text-[#7d8590] hover:text-[#e6edf3] transition-colors"
+            className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded hover:bg-[#21262d] text-[#7d8590] hover:text-[#e6edf3] transition-colors"
             title="Copy to clipboard"
           >
             <AnimatePresence mode="wait">
@@ -99,7 +109,7 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
                   exit={{ scale: 0 }}
                   className="text-[#3fb950]"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3 h-3 md:w-4 md:h-4" />
                 </motion.div>
               ) : (
                 <motion.div
@@ -108,7 +118,7 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3 h-3 md:w-4 md:h-4" />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -116,7 +126,7 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
           
           <button 
             onClick={onRefreshInbox}
-            className="flex items-center justify-center w-8 h-8 rounded hover:bg-[#21262d] text-[#7d8590] hover:text-[#e6edf3] transition-colors group"
+            className="hidden md:flex items-center justify-center w-8 h-8 rounded hover:bg-[#21262d] text-[#7d8590] hover:text-[#e6edf3] transition-colors group"
             title="Refresh Inbox Now"
           >
             <RefreshCw className="w-4 h-4 group-active:rotate-180 transition-transform duration-300" />
@@ -124,10 +134,10 @@ export function Header({ email, availableDomains, onNewAddress, onRefreshInbox, 
 
           <button 
             onClick={onNewAddress}
-            className="flex items-center justify-center w-8 h-8 rounded hover:bg-[#21262d] text-[#7d8590] hover:text-[#e6edf3] transition-colors ml-1"
+            className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded hover:bg-[#21262d] text-[#7d8590] hover:text-[#e6edf3] transition-colors md:ml-1"
             title="Generate Random Address"
           >
-             <PlusCircle className="w-4 h-4" />
+             <PlusCircle className="w-3 h-3 md:w-4 md:h-4" />
           </button>
         </div>
       </div>

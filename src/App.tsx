@@ -31,7 +31,10 @@ export default function App() {
   const [activeEmailId, setActiveEmailId] = useState<string | null>(null);
   const [currentEmailAddress, setCurrentEmailAddress] = useState<string>('');
   const [emailCount, setEmailCount] = useState<number>(0);
-
+  
+  // Mobile Support
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   // Auth state
   const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('temp_mail_token'));
   const [inputToken, setInputToken] = useState("");
@@ -84,7 +87,7 @@ export default function App() {
   if (authToken !== EXPECTED_TOKEN) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#0e1116] text-[#e6edf3] font-sans">
-        <form onSubmit={handleTokenSubmit} className="bg-[#0d1117] border border-[#30363d] p-8 rounded-xl shadow-2xl w-96 flex flex-col gap-4">
+        <form onSubmit={handleTokenSubmit} className="bg-[#0d1117] border border-[#30363d] p-8 rounded-xl shadow-2xl w-96 max-w-[90vw] flex flex-col gap-4">
           <div className="flex justify-center mb-2">
             <div className="w-12 h-12 rounded-lg bg-[#1f6feb] flex items-center justify-center shadow-lg shadow-blue-500/20">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
@@ -113,18 +116,28 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#0e1116] text-[#e6edf3] overflow-hidden font-sans">
-      <Sidebar emailCount={emailCount} />
-      <main className="flex-1 flex flex-col relative z-0 overflow-hidden">
+    <div className="flex h-screen w-full bg-[#0e1116] text-[#e6edf3] overflow-hidden font-sans relative">
+      <Sidebar emailCount={emailCount} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      
+      {/* Mobile Dark Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/60 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 flex flex-col relative z-0 overflow-hidden w-full">
         <Header
           email={currentEmailAddress}
           availableDomains={AVAILABLE_DOMAINS}
           onNewAddress={handleRefreshAddress}
           onRefreshInbox={manuallyRefreshInbox}
           onCustomAddressSubmit={handleCustomAddressSubmit}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
-        <div className="flex-1 flex overflow-hidden z-10">
-          <div className="w-1/3 min-w-[320px] max-w-[400px] border-r border-[#30363d] flex flex-col bg-[#0d1117] border-y-0 border-l-0">
+        <div className="flex-1 flex w-full overflow-hidden z-10 flex-col md:flex-row">
+          <div className="w-full md:w-1/3 md:min-w-[320px] md:max-w-[400px] border-r border-[#30363d] flex flex-col bg-[#0d1117] border-y-0 border-l-0 overflow-y-auto" style={{ height: activeEmailId ? '30%' : '100%' }}>
             <EmailList
               address={currentEmailAddress}
               activeEmailId={activeEmailId}
@@ -133,8 +146,8 @@ export default function App() {
               onCountChange={setEmailCount}
             />
           </div>
-          <div className="flex-1 relative bg-[#0e1116]">
-            <EmailViewer address={currentEmailAddress} emailId={activeEmailId} />
+          <div className="flex-1 relative bg-[#0e1116] overflow-y-auto" style={{ height: activeEmailId ? '70%' : '0' }}>
+            {activeEmailId && <EmailViewer address={currentEmailAddress} emailId={activeEmailId} />}
           </div>
         </div>
       </main>
