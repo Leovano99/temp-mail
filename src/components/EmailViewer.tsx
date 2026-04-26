@@ -53,7 +53,8 @@ export function EmailViewer({ address, emailId }: EmailViewerProps) {
     );
   }
 
-  const timeDate = new Date(emailDetail.created_at);
+  const safeTimeStr = typeof emailDetail.created_at === 'string' ? (emailDetail.created_at.includes('Z') ? emailDetail.created_at : emailDetail.created_at.replace(' ', 'T') + 'Z') : "";
+  const timeDate = new Date(safeTimeStr);
   const timeLabel = isNaN(timeDate.getTime()) ? emailDetail.created_at : timeDate.toLocaleString("en-US", { timeZone: 'Asia/Jakarta' });
 
   // Securely sanitize the HTML

@@ -64,7 +64,8 @@ export function EmailList({ address, activeEmailId, onSelectEmail, refreshTrigge
         
         {emails.map((email, idx) => {
           const isActive = activeEmailId === email.id;
-          const timeDate = new Date(email.time);
+          const safeTimeStr = typeof email.time === 'string' ? (email.time.includes('Z') ? email.time : email.time.replace(' ', 'T') + 'Z') : "";
+          const timeDate = new Date(safeTimeStr);
           const timeLabel = isNaN(timeDate.getTime()) ? email.time : timeDate.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
 
           return (
