@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Copy, RefreshCw, Check, PlusCircle, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
