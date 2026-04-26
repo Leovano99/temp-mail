@@ -7,9 +7,24 @@ import { EmailViewer } from './components/EmailViewer';
 const AVAILABLE_DOMAINS = ["leyon.my.id", "temp.leyon.my.id", "yourdomain.com"];
 const EXPECTED_TOKEN = import.meta.env.VITE_APP_GUARD_TOKEN || "admin123";
 
+function generatePronounceableWord(length: number) {
+  const consonants = 'bcdfghjklmnpqrstvwxyz';
+  const vowels = 'aeiou';
+  let word = '';
+  for (let i = 0; i < length; i++) {
+    if (i % 2 === 0) {
+      word += consonants.charAt(Math.floor(Math.random() * consonants.length));
+    } else {
+      word += vowels.charAt(Math.floor(Math.random() * vowels.length));
+    }
+  }
+  return word;
+}
+
 function generateRandomEmail() {
-  const randomString = Math.random().toString(36).substring(2, 10);
-  return `${randomString}@${AVAILABLE_DOMAINS[0]}`;
+  const word1 = generatePronounceableWord(5);
+  const number = Math.floor(Math.random() * 100);
+  return `${word1}${number}@${AVAILABLE_DOMAINS[0]}`;
 }
 
 export default function App() {
