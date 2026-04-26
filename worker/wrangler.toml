@@ -1,0 +1,11 @@
+name = "temp-mail-worker"
+main = "src/index.ts"
+compatibility_date = "2024-04-05"
+
+[triggers]
+crons = ["*/15 * * * *"] # Runs every 15 minutes
+
+[[d1_databases]]
+binding = "DB"
+database_name = "temp_mail_db"
+database_id = "2cf05be9-be3f-44bc-96da-230608eb0dc9"
