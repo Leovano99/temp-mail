@@ -54,7 +54,7 @@ export function EmailViewer({ address, emailId }: EmailViewerProps) {
   }
 
   const timeDate = new Date(emailDetail.created_at);
-  const timeLabel = isNaN(timeDate.getTime()) ? emailDetail.created_at : timeDate.toLocaleString();
+  const timeLabel = isNaN(timeDate.getTime()) ? emailDetail.created_at : timeDate.toLocaleString("en-US", { timeZone: 'Asia/Jakarta' });
 
   // Securely sanitize the HTML
   const sanitizedHtml = DOMPurify.sanitize(emailDetail.body_html || "");
