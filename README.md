@@ -1,73 +1,95 @@
-# React + TypeScript + Vite
+# Temp Mail Service
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A temporary email service built with React (Vite) and Cloudflare Workers (D1).
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js
+- Cloudflare account
+- Wrangler CLI (`npm install -g wrangler`)
 
-## React Compiler
+## Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Frontend Setup
 
-## Expanding the ESLint configuration
+Install dependencies for the React frontend:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Worker Setup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Navigate to the worker directory and install its dependencies:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd worker
+npm install
 ```
+
+### 3. Database Setup (Cloudflare D1)
+
+The backend uses Cloudflare D1 for storing emails.
+
+1. Create a new D1 database:
+   ```bash
+   npx wrangler d1 create temp_mail_db
+   ```
+2. Copy the `database_id` from the output and update the `worker/wrangler.toml` file:
+   ```toml
+   [[d1_databases]]
+   binding = "DB"
+   database_name = "temp_mail_db"
+   database_id = "YOUR_NEW_DATABASE_ID"
+   ```
+3. Initialize the database schema:
+   ```bash
+   npx wrangler d1 execute temp_mail_db --local --file=./schema.sql
+   npx wrangler d1 execute temp_mail_db --remote --file=./schema.sql
+   ```
+
+## Running Locally
+
+To run the full stack locally, you need two terminal windows:
+
+**Terminal 1 (Worker/Backend):**
+```bash
+cd worker
+npm run dev
+```
+
+**Terminal 2 (Frontend):**
+```bash
+npm run dev
+```
+
+## Deployment
+
+**Deploy the Worker:**
+```bash
+cd worker
+npx wrangler deploy
+```
+
+**Deploy the Frontend:**
+```bash
+npm run build
+```
+(Deploy the `dist` folder to Cloudflare Pages or your preferred static hosting).
+
+## Cloudflare Email Routing Setup
+
+To allow the worker to receive and process incoming emails, you need to configure Email Routing in the Cloudflare Dashboard:
+
+1. **Log in to Cloudflare:** Go to your Cloudflare Dashboard and select your domain.
+2. **Navigate to Email:** Click on **Email** -> **Email Routing** in the left sidebar.
+3. **Enable Email Routing:** If you haven't already, click **Get Started** and configure your domain's DNS records as prompted (Cloudflare will automatically add the required MX and TXT records).
+4. **Create a Catch-all Address:**
+   - Go to the **Routing rules** tab.
+   - Scroll down to the **Catch-all address** section.
+   - Click **Edit** (or create a new catch-all rule).
+   - Set the action to **Send to a Worker**.
+   - Select your deployed `temp-mail-worker` from the dropdown list.
+   - Save the rule.
+
+Now, any email sent to `[anything]@yourdomain.com` will trigger the worker and be saved to your D1 database!

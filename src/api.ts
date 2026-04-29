@@ -1,4 +1,4 @@
-const API_BASE = "https://temp-mail-worker.leyon.workers.dev";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8787";
 
 export const getEmails = async (address: string) => {
   const res = await fetch(`${API_BASE}/api/emails/${address}`);
